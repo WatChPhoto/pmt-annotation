@@ -24,7 +24,7 @@ def draw_circle(event,x,y,flags,param):
             rdrawing = True
             ix,iy = x,y
             cv2.circle(img, (x, y), small_size,(0,0,255),-1)
-            print(ix, "x  ", iy,"y")
+            print(ix, "x", iy,"y")
 
         elif event == cv2.EVENT_MBUTTONUP:
             rdrawing = False
@@ -71,7 +71,7 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
     base = os.path.basename(img_path)
     filename = os.path.splitext(base)[0]
     file = open("%s.txt" %filename,"w")
-    print("Saving to: ",filename,".txt")
+    print("Saving to: ",filename+".txt")
 
     #Create window and put it in top left corner of screen
     cv2.namedWindow(filename,cv2.WINDOW_GUI_EXPANDED) ####################### Added cv2.WINDOW_NORMAL flag to allow to resize window.
@@ -102,7 +102,7 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
         if(k==ord('f')):
            nextPMT = True
            pmtSelected = False
-           print("Ended recording for PMT ",pmtID, ". Record first feature for another by selecting a point and pressing r.")
+           print("Ended recording for PMT ",str(pmtID)+". Record first feature for another by selecting a point and pressing r.")
 
         elif(k==ord('x')):
            print("Skipping feature #", startingVal)
@@ -110,29 +110,30 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
 
         if(k==ord('r')):
             if(pmtSelected == True):
-                print("Recording ", pmtID, "-",startingVal, " ",ix, "x  ", iy,"y\n")
+                
                 writepmtID = pmtID.zfill(5)
-                writestartingVal = f'{startingVal:02}'
+                writestartingVal = f'{startingVal:02}'   
+                print("Recording ", writepmtID+"-"+writestartingVal, ix, "x", iy,"y\n")
+   
                 file.write("%s\t%s-%s\t%d\t%d\t%s\n" %(filename,writepmtID,writestartingVal, ix, iy,initials))
                 startingVal = startingVal+1   
             else:
                 inputting = True ##used to pause the draw_circle function from recording more coordinates
-                pmtID = input("Input PMT number to add it to the list, or input 'd' to not register:\n")
+                pmtID = input("Input PMT number to add it to the list, or input 'd' to not register:\n-->")
                 if(pmtID != 'd'):
-                    startingFeature = input("Input starting feature number, or press enter to start from 0.\n")
+                    startingFeature = input("Input starting feature number, or press enter to start from 0.\n-->")
                     if(not startingFeature):
                         startingVal = 0
                     else:
                         startingVal = int(startingFeature)
-                        
-                    print("Recording ", pmtID, "-",startingVal, " ",ix, "x  ", iy,"y\n")
-                    print("Record another selected point by pressing r.\nPress x to skip recording a number.\nPress f to finish recording features for this PMT.")
-                   # if(startingVal<10 or startingVal == 0):
-                   #     file.write("%s\t%s-0%d\t%d\t%d\t%s\n" %(filename,pmtID,startingVal, ix, iy,initials))
-                   # else:
-                   #     file.write("%s\t%s-%d\t%d\t%d\t%s\n" %(filename,pmtID,startingVal, ix, iy,initials))
+                      
                     writepmtID = pmtID.zfill(5)
-                    writestartingVal = f'{startingVal:02}'
+                    writestartingVal = f'{startingVal:02}'   
+                    print("Recording ", writepmtID+"-"+writestartingVal, ix, "x", iy,"y\n")
+                    print("Record another selected point by pressing r.\nPress x to skip recording a number.\nPress f to finish recording features for this PMT.")
+                    
+
+                    
                     file.write("%s\t%s-%s\t%d\t%d\t%s\n" %(filename,writepmtID,writestartingVal, ix, iy,initials))
                     startingVal = startingVal+1
                     coords[0].append(ix)
@@ -164,7 +165,7 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
 
     cv2.destroyWindow(filename)
 
-    np.savetxt("array.txt", coords, fmt="%s")
+#    np.savetxt("array.txt", coords, fmt="%s") #for later implementing feature to save to array.
     return
             
 
@@ -210,7 +211,7 @@ def annotate_dir(img_dir, initials, size1=1, size2=1) :
         f.extend(filenames)
         break
     
-    print(f)
+    print("Found: ",f,"\n\n")
     
     for i in f :
         skip = False
@@ -225,10 +226,45 @@ def annotate_dir(img_dir, initials, size1=1, size2=1) :
         textName = os.path.join(imageName+".txt")
         maskName = os.path.join(imageName+".png")
 
-        print("------- Moving ",textName, "to ", text_save_path)
-        shutil.move(textName,text_save_path)
-        print("------- Moving ",maskName, "to ", mask_save_path)
-        shutil.move(maskName,mask_save_path)
+
+        saveText=True
+        if(os.path.exists(os.path.join(text_save_path,textName))):
+            print("File", textName, "already exists in", text_save_path+". Would you like to overwrite it?")            
+            overwriteText = input("(y/n)\n-->")
+            if(overwriteText == "y" or overwriteText == "Y"):
+                saveText = True
+                os.remove(os.path.join(text_save_path,textName))
+            else:
+                saveText = False
+
+        if(saveText == True):
+            print("Moving",textName, "to", text_save_path)        
+            shutil.move(textName,text_save_path)
+        else:
+            os.remove(textName)
+            print("Removed new", textName)
+
+
+        print("\n")
+
+
+        saveMask=True
+        if(os.path.exists(os.path.join(mask_save_path,maskName))):
+            print("File", maskName, "already exists in", mask_save_path+". Would you like to overwrite it?")
+            overwriteMask = input("(y/n)\n-->")
+            if(overwriteMask == "y" or overwriteMask == "Y"):
+                saveMask=True
+                os.remove(os.path.join(mask_save_path,maskName))
+            else:
+                saveMask=False
+        
+        
+        if(saveMask == True):
+            print("Moving",maskName, "to", mask_save_path)
+            shutil.move(maskName,mask_save_path)
+        else:
+            os.remove(maskName)
+            print("Removed new", maskName)
 
         #Drawing and keyboard callbacks a to skip and delete, s to save image
         
