@@ -231,7 +231,7 @@ def annotate_dir(img_dir, initials, size1=1, size2=1) :
         if(os.path.exists(os.path.join(text_save_path,textName))):
             print("File", textName, "already exists in", text_save_path+". Would you like to overwrite it?")            
             overwriteText = input("(y/n)\n-->")
-            if(overwriteText == "y" or overwriteText == "Y"):
+            if(overwriteText.lower() == "y"):
                 saveText = True
                 os.remove(os.path.join(text_save_path,textName))
             else:
@@ -252,7 +252,7 @@ def annotate_dir(img_dir, initials, size1=1, size2=1) :
         if(os.path.exists(os.path.join(mask_save_path,maskName))):
             print("File", maskName, "already exists in", mask_save_path+". Would you like to overwrite it?")
             overwriteMask = input("(y/n)\n-->")
-            if(overwriteMask == "y" or overwriteMask == "Y"):
+            if(overwriteMask.lower() == "y"):
                 saveMask=True
                 os.remove(os.path.join(mask_save_path,maskName))
             else:
