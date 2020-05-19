@@ -10,14 +10,14 @@ def draw_circle(event,x,y,flags,param):
         global ix, iy, drawing, rdrawing, mode
         global count
 
-        #if event == cv2.EVENT_LBUTTONDOWN:
-        #    drawing = True
-        #    ix,iy = x,y
-        #    cv2.circle(img, (x, y), large_size,(0,0,255),-1)
-        #    print(ix, "x  ", iy,"y")
-        #  
-        #elif event == cv2.EVENT_LBUTTONUP:
-        #    drawing = False
+        if event == cv2.EVENT_LBUTTONDOWN:
+            drawing = True
+            ix,iy = x,y
+            cv2.circle(img, (x, y), large_size,(0,0,255),-1)
+            print(ix, "x  ", iy,"y")
+          
+        elif event == cv2.EVENT_LBUTTONUP:
+            drawing = False
  
 
         if event == cv2.EVENT_MBUTTONDOWN:
@@ -28,13 +28,7 @@ def draw_circle(event,x,y,flags,param):
 
         elif event == cv2.EVENT_MBUTTONUP:
             rdrawing = False
-       
-
-
-
-
-
-                
+               
 
 
         
@@ -74,9 +68,11 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
     print("Saving to: ",filename+".txt")
 
     #Create window and put it in top left corner of screen
-    cv2.namedWindow(filename,cv2.WINDOW_GUI_EXPANDED) ####################### Added cv2.WINDOW_NORMAL flag to allow to resize window.
+    #cv2.namedWindow(filename,cv2.WINDOW_GUI_EXPANDED) ####################### Added cv2.WINDOW_NORMAL flag to allow to resize window.
+    cv2.namedWindow(filename,cv2.WINDOW_NORMAL) ####################### Added cv2.WINDOW_NORMAL flag to allow to resize window.
     ##cv2.moveWindow(filename, 40, 30) ##40 and 30 are x and y coordinates on the screen
-    cv2.moveWindow(filename, 0, 0)
+    cv2.moveWindow(filename, 500, 0)
+    cv2.resizeWindow(filename, 1200, 900)
     global drawing, rdrawing, large_size, small_size, img
     large_size=size1
     small_size=size2
@@ -208,6 +204,7 @@ def annotate_dir(img_dir, initials, size1=1, size2=1) :
     #Array of names in directory to iterate over
     f = []
     for (dirpath, dirnames, filenames) in os.walk(f'{img_dir}'):
+        filenames.sort()
         f.extend(filenames)
         break
     
