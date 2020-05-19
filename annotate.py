@@ -28,7 +28,7 @@ def draw_circle(event,x,y,flags,param):
 
         elif event == cv2.EVENT_MBUTTONUP:
             rdrawing = False
-                     
+
 
 
         
@@ -68,6 +68,9 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
     print("Saving to: ",filename+".txt")
 
     #Create window and put it in top left corner of screen
+
+    #cv2.namedWindow(filename,cv2.WINDOW_GUI_EXPANDED) ####################### Added cv2.WINDOW_NORMAL flag to allow to resize window.
+
     cv2.namedWindow(filename,cv2.WINDOW_NORMAL) ####################### Added cv2.WINDOW_NORMAL flag to allow to resize window.
     ##cv2.moveWindow(filename, 40, 30) ##40 and 30 are x and y coordinates on the screen
     cv2.moveWindow(filename, 500, 0)
