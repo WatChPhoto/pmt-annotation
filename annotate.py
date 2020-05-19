@@ -28,7 +28,7 @@ def draw_circle(event,x,y,flags,param):
 
         elif event == cv2.EVENT_MBUTTONUP:
             rdrawing = False
-
+                     
 
 
         
@@ -68,9 +68,6 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
     print("Saving to: ",filename+".txt")
 
     #Create window and put it in top left corner of screen
-
-    #cv2.namedWindow(filename,cv2.WINDOW_GUI_EXPANDED) ####################### Added cv2.WINDOW_NORMAL flag to allow to resize window.
-
     cv2.namedWindow(filename,cv2.WINDOW_NORMAL) ####################### Added cv2.WINDOW_NORMAL flag to allow to resize window.
     ##cv2.moveWindow(filename, 40, 30) ##40 and 30 are x and y coordinates on the screen
     cv2.moveWindow(filename, 500, 0)
@@ -135,7 +132,7 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
         if(k==ord('r')):
             if(pmtSelected == True):
                 
-                #startingVal = startingVal+1
+
                 writestartingVal = f'{startingVal:02}'
                 writepmtID = pmtID.zfill(5)   
                 print("Recording ", writepmtID+"-"+writestartingVal, ix, "x", iy,"y\n")
@@ -148,6 +145,10 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
 
                 coords[0][startingVal] = ix
                 coords[1][startingVal] = iy
+
+
+                startingVal = startingVal+1
+                print("Ready to record",startingVal)
                 
                 
 
@@ -164,7 +165,7 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
                     writepmtID = pmtID.zfill(5)
                     writestartingVal = f'{startingVal:02}'   
                     print("Recording ", writepmtID+"-"+writestartingVal, ix, "x", iy,"y\n")
-                    print("Record another selected point by pressing r.\nPress x to skip recording a number.\nPress f to finish recording features for this PMT.")
+                    print("Record another selected point by pressing r.\nPress n to increment feature number.\nPress b to decrement feature number.\nPress f to finish recording features for this PMT.")
                     
                     while(startingVal>=len(coords[0])):
                         coords[0].append("N")
@@ -174,8 +175,8 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
                     coords[1][startingVal] = iy
 
                     
-                    
-                    #startingVal = startingVal+1
+                    startingVal = startingVal+1
+                    print("Ready to record",startingVal)
 
                     pmtSelected = True
                     nextPMT = True
