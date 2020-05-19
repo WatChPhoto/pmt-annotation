@@ -250,6 +250,7 @@ def annotate_dir(img_dir, initials, size1=1, size2=1) :
     #Array of names in directory to iterate over
     f = []
     for (dirpath, dirnames, filenames) in os.walk(f'{img_dir}'):
+        filenames.sort()
         f.extend(filenames)
         break
     
