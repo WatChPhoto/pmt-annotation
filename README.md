@@ -41,11 +41,14 @@ Set up for directory of images with file structure for image segmentation. This 
 -----------------------
 
 ### User keypresses (make sure the image window is selected):
-* click on image to grab pixel coordinates
+* click on image to grab pixel coordinates:
+	* Left-click to label with red 
+	* middle-click to label with blue
 * s to close image and exit program
-* r to write coordinates to file (you will be prompted for the PMT feature ID)
+* r to write coordinates (you will be prompted for the PMT feature ID if a PMT has not been selected yet)
 * f to select new PMT
-* Left-click to label with red, middle-click to label with blue.
+* n to increment the featureID number
+* b to decrement the featureID number
 
 
 
