@@ -3,16 +3,15 @@ import os
 import numpy as np
 import shutil
 
-#annotate_img("B.jpg","MS",10,120)
-
 global COLOR
 COLOR = 255
 
 global RED
-RED = COLOR,0,0
+RED = 0,0,COLOR
 
 global BLUE
-BLUE = 0,0,COLOR
+BLUE = COLOR,0,0
+
 
 
 
@@ -26,24 +25,29 @@ def draw_circle(event,x,y,flags,param):
         if event == cv2.EVENT_LBUTTONDOWN:
             drawing = True
             ix,iy = x,y
-            cv2.circle(img, (x, y), small_size,BLUE,-1)
+            cv2.circle(img, (x, y), small_size,RED,-1)
             print(ix, "x  ", iy,"y")
-          
+
+        elif event == cv2.EVENT_MOUSEMOVE:
+            if drawing == True:
+                cv2.circle(img, (x, y), small_size,RED,-1)
+                
         elif event == cv2.EVENT_LBUTTONUP:
             drawing = False
- 
 
         if event == cv2.EVENT_MBUTTONDOWN:
             rdrawing = True
             ix,iy = x,y
-            cv2.circle(img, (x, y), large_size,RED,-1)
+            cv2.circle(img, (x, y), large_size,BLUE,-1)
 
             print(ix, "x", iy,"y")
 
+        elif event == cv2.EVENT_MOUSEMOVE:
+            if rdrawing == True:
+                cv2.circle(img, (x, y), large_size,BLUE,-1)
+
         elif event == cv2.EVENT_MBUTTONUP:
             rdrawing = False
-                     
-
 
         
 ##Set up for a single image
@@ -210,7 +214,7 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
     #Make mask same colour as drawing and output binarised image
 
     #Create a dictionary listing all drawing colors
-    colorDictionary = {"color1": RED,"color2": BLUE}
+    colorDictionary = {"color2": BLUE,"color1": RED}
 
     train_labels = img[:,:,:3]
     counter = 1
@@ -341,15 +345,3 @@ def annotate_dir(img_dir, initials, size1=1, size2=1) :
             os.remove(maskName)
             print("Removed new", maskName)
 
-        #Drawing and keyboard callbacks a to skip and delete, s to save image
-        
-         
-###############################Add line to text output###############################
-            
-###############################Add line to text output###############################
-    
-###############################Image Output##########################################
-      
-###############################Image Output##########################################
-    #file.close
-    #cv2.destroyWindow('image')
