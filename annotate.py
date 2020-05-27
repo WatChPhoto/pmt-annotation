@@ -3,16 +3,15 @@ import os
 import numpy as np
 import shutil
 
-#annotate_img("B.jpg","MS",10,120)
-
 global COLOR
 COLOR = 255
 
 global RED
-RED = COLOR,0,0
+RED = 0,0,COLOR
 
 global BLUE
-BLUE = 0,0,COLOR
+BLUE = COLOR,0,0
+
 
 
 
@@ -26,43 +25,51 @@ def draw_circle(event,x,y,flags,param):
         if event == cv2.EVENT_LBUTTONDOWN:
             drawing = True
             ix,iy = x,y
-            cv2.circle(img, (x, y), small_size,BLUE,-1)
+            cv2.circle(img, (x, y), small_size,RED,-1)
             print(ix, "x  ", iy,"y")
-          
+
+        elif event == cv2.EVENT_MOUSEMOVE:
+            if drawing == True:
+                cv2.circle(img, (x, y), small_size,RED,-1)
+                
         elif event == cv2.EVENT_LBUTTONUP:
             drawing = False
- 
 
         if event == cv2.EVENT_MBUTTONDOWN:
             rdrawing = True
             ix,iy = x,y
-            cv2.circle(img, (x, y), large_size,RED,-1)
+            cv2.circle(img, (x, y), large_size,BLUE,-1)
 
             print(ix, "x", iy,"y")
 
+        elif event == cv2.EVENT_MOUSEMOVE:
+            if rdrawing == True:
+                cv2.circle(img, (x, y), large_size,BLUE,-1)
+
         elif event == cv2.EVENT_MBUTTONUP:
             rdrawing = False
-                     
-
 
         
 ##Set up for a single image
-##function: annotate_img
-    ##inputs
-        ##img_path - name and location of the image, example "B.jpg"
-        ##size1 - size of the 1st brush circle, in px
-        ##size2 - size of the 2nd brush circle, in px
-        ##initials - First name and last name initials of the person doing the labelling. Recorded next to every PMT feature ID line in the text file.
-    ##outputs
-        ##label.jpg - A map of all the features in binary (white on black)
-        ##{image_name}.txt - A text file. Each line contains a PMT feature ID and its pixel coordinates on the image. The text file has the same name as the image.
+#function: annotate_img
+# Inputs
+#    img_path - name and location of the image, example "B.jpg"
+#    size1 - size of the 1st brush circle, in px
+#    size2 - size of the 2nd brush circle, in px
+#    initials - First name and last name initials of the person doing the labelling. Recorded next to every PMT feature ID line in the text file.
+# Outputs
+#    {image_name}.png - A map of all the features in binary - features labelled in blue are recorded as RGB (1,1,1), and features in red are recorded as RGB (2,2,2).
+#    {image_name}.txt - A text file. Each line contains a PMT feature ID and its pixel coordinates on the image. The text file has the same name as the image.
 
-    ##User keypresses (make sure the image window is selected):
-        ## click on image to grab pixel coordinates
-        ## s to close image and exit program
-        ## r to write coordinates to file (you will be prompted for the PMT feature ID)
-        ## f to select new PMT
-        ## Left-click to label with red, middle-click to label with blue.
+##User keypresses (make sure the image window is selected):
+# click on image to grab pixel coordinates:
+#	 Left-click to label with red 
+#	 middle-click to label with blue
+# s to close image and exit program
+# r to write coordinates (you will be prompted for the PMT feature ID if a PMT has not been selected yet)
+# f to select new PMT
+# n to increment the featureID number
+# b to decrement the featureID number
 def annotate_img(img_path, initials, size1=1, size2=1) :
     print("image path is: ",img_path)
 
@@ -207,7 +214,7 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
     #Make mask same colour as drawing and output binarised image
 
     #Create a dictionary listing all drawing colors
-    colorDictionary = {"color1": RED,"color2": BLUE}
+    colorDictionary = {"color2": BLUE,"color1": RED}
 
     train_labels = img[:,:,:3]
     counter = 1
@@ -245,14 +252,21 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
 
 #Set up for directory of images with file structure for image segmentation
 #Function: annotate_dir
-#   input:
-#       img_dir & dataset - working directory. (directory named {img_dir}{dataset}).
-#       subset - Preffix for the two folders inside img_dir where images are located and labels are saved. Folders are subset_frames and subset_masks.
-#       size1 - size of the 1st brush circle, in px.
-#       size2 - size of the 2nd brush circle, in px.
-#       initials - First name and last name initials of the person doing the labelling. Recorded next to every PMT feature ID line in the text file.
-#       filename - The name of the .txt file that will be created.
-#Set up for directory of images with file structure for image segmentation
+# Inputs
+#    img_dir - image directory. Images are contained inside this folder.
+#    initials - First name and last name initials of the person doing the labelling. Recorded next to every PMT feature ID line in the text file.
+#    size1 - size of the 1st brush circle, in px.
+#    size2 - size of the 2nd brush circle, in px.
+# Outputs (for every image in {img_dir})
+#    {image_name}.png - A map of all the features in binary - features labelled in blue are recorded as RGB (1,1,1), and features in red are recorded as RGB (2,2,2).
+#    {image_name}.txt - A text file. Each line contains a PMT feature ID and its pixel coordinates on the image. The text file has the same name as the image.
+# Folder Structure
+#    {img_dir}
+#        - Source images are stored here.
+#    {img_dir}_texts
+#        - Output text files are stored here.
+#    {img_dir}_masks
+#        - Output mask files are stored here. 
 def annotate_dir(img_dir, initials, size1=1, size2=1) :
     #Create window and put it in top left corner off screen
 
@@ -331,15 +345,3 @@ def annotate_dir(img_dir, initials, size1=1, size2=1) :
             os.remove(maskName)
             print("Removed new", maskName)
 
-        #Drawing and keyboard callbacks a to skip and delete, s to save image
-        
-         
-###############################Add line to text output###############################
-            
-###############################Add line to text output###############################
-    
-###############################Image Output##########################################
-      
-###############################Image Output##########################################
-    #file.close
-    #cv2.destroyWindow('image')
