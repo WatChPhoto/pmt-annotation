@@ -3,9 +3,6 @@ import os
 import numpy as np
 import shutil
 
-#annotate_img("test/B.jpg","MS",10,120)
-#annotate_dir("folder","MS")
-
 global COLOR
 COLOR = 255
 
@@ -51,22 +48,24 @@ def draw_circle(event,x,y,flags,param):
 
         
 ##Set up for a single image
-##function: annotate_img
-    ##inputs
-        ##img_path - name and location of the image, example "B.jpg"
-        ##size1 - size of the 1st brush circle, in px
-        ##size2 - size of the 2nd brush circle, in px
-        ##initials - First name and last name initials of the person doing the labelling. Recorded next to every PMT feature ID line in the text file.
-    ##outputs
-        ##label.jpg - A map of all the features in binary (white on black)
-        ##{image_name}.txt - A text file. Each line contains a PMT feature ID and its pixel coordinates on the image. The text file has the same name as the image.
+#function: annotate_img
+# Inputs
+#    img_path - name and location of the image, example "B.jpg"
+#    size1 - size of the 1st brush circle, in px
+#    size2 - size of the 2nd brush circle, in px
+#    initials - First name and last name initials of the person doing the labelling. Recorded next to every PMT feature ID line in the text file.
+# Outputs
+#    {image_name}.png - A map of all the features in binary - features labelled in blue are recorded as RGB (1,1,1), and features in red are recorded as RGB (2,2,2).
+#    {image_name}.txt - A text file. Each line contains a PMT feature ID and its pixel coordinates on the image. The text file has the same name as the image.
 
-    ##User keypresses (make sure the image window is selected):
-        ## click on image to grab pixel coordinates
-        ## s to close image and exit program
-        ## r to write coordinates to file (you will be prompted for the PMT feature ID)
-        ## f to select new PMT
-        ## Left-click to label with red, middle-click to label with blue.
+##User keypresses (make sure the image window is selected):
+# click on image to grab pixel coordinates:
+#	 Left-click to label with red 
+#	 middle-click to label with blue
+# s to close image and exit program
+# r to write coordinates (you will be prompted for the PMT feature ID if a PMT has not been selected yet)
+# f to select new PMT
+# n to increment the featureID number
 def annotate_img(img_path, initials, size1=1, size2=1) :
     print("image path is: ",img_path)
     global saveToText
@@ -254,14 +253,21 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
 
 #Set up for directory of images with file structure for image segmentation
 #Function: annotate_dir
-#   input:
-#       img_dir & dataset - working directory. (directory named {img_dir}{dataset}).
-#       subset - Preffix for the two folders inside img_dir where images are located and labels are saved. Folders are subset_frames and subset_masks.
-#       size1 - size of the 1st brush circle, in px.
-#       size2 - size of the 2nd brush circle, in px.
-#       initials - First name and last name initials of the person doing the labelling. Recorded next to every PMT feature ID line in the text file.
-#       filename - The name of the .txt file that will be created.
-#Set up for directory of images with file structure for image segmentation
+# Inputs
+#    img_dir - image directory. Images are contained inside this folder.
+#    initials - First name and last name initials of the person doing the labelling. Recorded next to every PMT feature ID line in the text file.
+#    size1 - size of the 1st brush circle, in px.
+#    size2 - size of the 2nd brush circle, in px.
+# Outputs (for every image in {img_dir})
+#    {image_name}.png - A map of all the features in binary - features labelled in blue are recorded as RGB (1,1,1), and features in red are recorded as RGB (2,2,2).
+#    {image_name}.txt - A text file. Each line contains a PMT feature ID and its pixel coordinates on the image. The text file has the same name as the image.
+# Folder Structure
+#    {img_dir}
+#        - Source images are stored here.
+#    {img_dir}_texts
+#        - Output text files are stored here.
+#    {img_dir}_masks
+#        - Output mask files are stored here. 
 def annotate_dir(img_dir, initials, size1=1, size2=1) :
     #Create window and put it in top left corner off screen
     global fileSaved
