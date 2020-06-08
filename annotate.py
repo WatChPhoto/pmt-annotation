@@ -7,11 +7,13 @@ global COLOR
 COLOR = 255
 
 global RED
-RED = 0,0,COLOR
+RED = COLOR,0,0
 
 global BLUE
-BLUE = COLOR,0,0
+BLUE = 0,0,COLOR
 
+global fileSaved
+fileSaved = True
 
 
 
@@ -25,29 +27,24 @@ def draw_circle(event,x,y,flags,param):
         if event == cv2.EVENT_LBUTTONDOWN:
             drawing = True
             ix,iy = x,y
-            cv2.circle(img, (x, y), small_size,RED,-1)
+            cv2.circle(img, (x, y), small_size,BLUE,-1)
             print(ix, "x  ", iy,"y")
-
-        elif event == cv2.EVENT_MOUSEMOVE:
-            if drawing == True:
-                cv2.circle(img, (x, y), small_size,RED,-1)
-                
+          
         elif event == cv2.EVENT_LBUTTONUP:
             drawing = False
+ 
 
         if event == cv2.EVENT_MBUTTONDOWN:
             rdrawing = True
             ix,iy = x,y
-            cv2.circle(img, (x, y), large_size,BLUE,-1)
+            cv2.circle(img, (x, y), large_size,RED,-1)
 
             print(ix, "x", iy,"y")
 
-        elif event == cv2.EVENT_MOUSEMOVE:
-            if rdrawing == True:
-                cv2.circle(img, (x, y), large_size,BLUE,-1)
-
         elif event == cv2.EVENT_MBUTTONUP:
             rdrawing = False
+                     
+
 
         
 ##Set up for a single image
@@ -69,10 +66,10 @@ def draw_circle(event,x,y,flags,param):
 # r to write coordinates (you will be prompted for the PMT feature ID if a PMT has not been selected yet)
 # f to select new PMT
 # n to increment the featureID number
-# b to decrement the featureID number
 def annotate_img(img_path, initials, size1=1, size2=1) :
     print("image path is: ",img_path)
-
+    global saveToText
+    saveToText = True
     global count
     global inputting
     inputting = False
@@ -87,9 +84,9 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
     #Extract the name of the image from the inputted path to the image.
     base = os.path.basename(img_path)
     filename = os.path.splitext(base)[0]
-    file = open("%s.txt" %filename,"w")
-    print("Saving to: ",filename+".txt")
-
+    saveFile("empty",os.path.join(filename+".txt"),"text")
+    if(saveToText == True):
+        file = open("%s.txt" %filename,"w")
     
     #Create window and put it in top left corner of screen
     
@@ -110,8 +107,6 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
 
     print("\n Click on image to grab pixel coordinates.\n Press s to close image and exit program.\n Press r to write coordinates to file. \n    (you will be prompted for the PMT feature ID)\n Press left mouse button to label in red, and middle click to label in blue.")
 
-
-
     while(1):
         cv2.imshow(filename,img)     ##keep displaying the image even if the user exits.
         k = cv2.waitKey(20) & 0xFF
@@ -122,7 +117,8 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
                     writestartingVal = f'{i:02}'
 
                     print(filename+"\t"+writepmtID+"-"+writestartingVal+"\t"+str(coords[0][i])+"\t"+str(coords[1][i])+"\t"+initials+"\n")
-                    file.write("%s\t%s-%s\t%s\t%s\t%s\n" %(filename,writepmtID,writestartingVal, str(coords[0][i]), str(coords[1][i]),initials))
+                    if(saveToText==True):
+                        file.write("%s\t%s-%s\t%s\t%s\t%s\n" %(filename,writepmtID,writestartingVal, str(coords[0][i]), str(coords[1][i]),initials))
                     coords[0][i]="N"
                     coords[1][i]="N"  
             break
@@ -138,7 +134,8 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
                 if(coords[0][i]!="N"):
                     writestartingVal = f'{i:02}' 
                     print(filename+"\t"+writepmtID+"-"+writestartingVal+"\t"+str(coords[0][i])+"\t"+str(coords[1][i])+"\t"+initials+"\n")
-                    file.write("%s\t%s-%s\t%s\t%s\t%s\n" %(filename,writepmtID,writestartingVal, str(coords[0][i]), str(coords[1][i]),initials))
+                    if(saveToText==True):
+                        file.write("%s\t%s-%s\t%s\t%s\t%s\n" %(filename,writepmtID,writestartingVal, str(coords[0][i]), str(coords[1][i]),initials))
                     coords[0][i]="N"
                     coords[1][i]="N"  
            print("Ended recording for PMT ",str(pmtID)+". Record first feature for another by selecting a point and pressing r.")
@@ -212,14 +209,15 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
 
 ###############################Image Output##########################################
     #Make mask same colour as drawing and output binarised image
-
+    #Make additional visible mask with white background for viewing
     #Create a dictionary listing all drawing colors
-    colorDictionary = {"color2": BLUE,"color1": RED}
+    colorDictionary = {"color1": RED,"color2": BLUE}
 
     train_labels = img[:,:,:3]
     counter = 1
     #Create the empty mask
     mask = 0
+    visibleMask = 255
     #Add drawings from every color in the dictionary to the mask 
     for color in colorDictionary:
         color_thresh = np.array(colorDictionary[color], dtype = "uint16")
@@ -228,12 +226,15 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
         mask_color[mask_color!=0] = counter
         counter = counter+1
         mask = np.add(mask, mask_color)
+        visibleMask = np.add(visibleMask,mask_color)
 
 
     maskName = os.path.join(filename+'.png')
-    print("Saving mask to: ",maskName)
-    #save mask in code directory
-    cv2.imwrite(maskName, mask )
+    visibleMaskName = os.path.join(filename+'-visible.png')
+
+    saveFile(mask,maskName,"mask")
+
+    saveFile(visibleMask,visibleMaskName,"mask")
 
 ###############################Image Output##########################################
 
@@ -269,8 +270,8 @@ def annotate_img(img_path, initials, size1=1, size2=1) :
 #        - Output mask files are stored here. 
 def annotate_dir(img_dir, initials, size1=1, size2=1) :
     #Create window and put it in top left corner off screen
+    global fileSaved
 
- 
 ####### Creating text and mask save directories #######
     text_save_path = os.path.join(img_dir+"_texts")
     if not os.path.exists(text_save_path):
@@ -304,44 +305,53 @@ def annotate_dir(img_dir, initials, size1=1, size2=1) :
 
         textName = os.path.join(imageName+".txt")
         maskName = os.path.join(imageName+".png")
+        visibleMaskName = os.path.join(imageName+"-visible.png")
 
+        fileSave=True
+        saveFile("empty",os.path.join(text_save_path,textName),"text")
 
-        saveText=True
-        if(os.path.exists(os.path.join(text_save_path,textName))):
-            print("File", textName, "already exists in", text_save_path+". Would you like to overwrite it?")            
-            overwriteText = input("(y/n)\n-->")
-            if(overwriteText.lower() == "y"):
-                saveText = True
-                os.remove(os.path.join(text_save_path,textName))
-            else:
-                saveText = False
-
-        if(saveText == True):
+        if(fileSaved == True):
             print("Moving",textName, "to", text_save_path)        
             shutil.move(textName,text_save_path)
-        else:
-            os.remove(textName)
-            print("Removed new", textName)
 
 
         print("\n")
 
 
-        saveMask=True
-        if(os.path.exists(os.path.join(mask_save_path,maskName))):
-            print("File", maskName, "already exists in", mask_save_path+". Would you like to overwrite it?")
-            overwriteMask = input("(y/n)\n-->")
-            if(overwriteMask.lower() == "y"):
-                saveMask=True
-                os.remove(os.path.join(mask_save_path,maskName))
-            else:
-                saveMask=False
-        
-        
-        if(saveMask == True):
-            print("Moving",maskName, "to", mask_save_path)
+        fileSaved=True
+        saveFile("empty",os.path.join(mask_save_path,maskName),"mask-test")
+        if(fileSaved == True):
+            print("Moving",maskName, "to", mask_save_path)        
             shutil.move(maskName,mask_save_path)
-        else:
-            os.remove(maskName)
-            print("Removed new", maskName)
+  
 
+        fileSaved=True
+        saveFile("empty",os.path.join(mask_save_path,visibleMaskName),"mask-test")
+        if(fileSaved == True):
+            print("Moving",visibleMaskName, "to", mask_save_path)        
+            shutil.move(visibleMaskName,mask_save_path)
+        
+         
+
+def saveFile(file,name,text_or_mask):
+    global fileSaved
+    #mask_save_path = os.path.join(location)  ##temp  
+
+    location_name = name
+
+    
+    fileSaved=True
+    if(os.path.exists(location_name)):
+        print("File", location_name, "already exists. Would you like to overwrite it?")
+        overwriteFile = input("(y/n)\n-->")
+        if(overwriteFile.lower() == "y"):
+            fileSaved=True
+            os.remove(location_name)
+        else:
+            fileSaved=False
+            if(text_or_mask=="text"):
+                saveToText = False
+                print("Will proceed without recording text file.\n")
+    if(fileSaved == True):
+        if(text_or_mask=="mask"):
+            cv2.imwrite(location_name, file)
