@@ -1,0 +1,37 @@
+git clone https://github.com/opencv/opencv.git
+cd opencv
+git checkout 4.3.0
+cd -
+
+git clone https://github.com/opencv/opencv_contrib.gitsp
+cd opencv_contrib
+git checkout 4.3.0
+cd -
+
+mkdir opencv_build
+cd opencv_build
+
+export PYTHON_VERSION=3.8
+export PYTHON3_EXECUTABLE=`which python${PYTHON_VERSION}`
+
+export PYTHON3_LIBRARY=`${PYTHON3_EXECUTABLE} -c 'import subprocess ; import sys ; s = subprocess.check_output("${PYTHON3_EXECUTABLE}-config --configdir", shell=True).decode("utf-8").strip() ; (M, m) = sys.version_info[:2] ; print("{}/libpython{}.{}.dylib".format(s, M, m))'`
+
+export PYTHON3_INCLUDE_DIR=`${PYTHON3_EXECUTABLE} -c 'import distutils.sysconfig as s; print(s.get_python_inc())'`
+PYTHON3_NUMPY_INCLUDE_DIRS=`python${PYTHON_VERSION}-config --prefix`/lib/python${PYTHON_VERSION}/site-packages/numpy/core/include
+
+export OPENCV_EXTRA_MODULES_PATH=${PWD}/../opencv_contrib/modules 
+
+export CMAKE_BUILD_TYPE=Release
+export BUILD_opencv_python2=OFF
+export BUILD_opencv_python3=ON 
+export WITH_TBB=ON
+export WITH_V4L=ON
+export OPENCV_ENABLE_NONFREE=ON
+export WITH_OPENGL=ON
+
+export QT5PATH=/usr/local/Cellar/qt/5.14.2
+export CMAKE_PREFIX_PATH=$QT5PATH
+export CMAKE_MODULE_PATH="$QT5PATH"/lib/cmake
+export WITH_QT=YES
+
+cmake ../opencv
